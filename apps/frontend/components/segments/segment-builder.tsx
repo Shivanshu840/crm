@@ -1,17 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@repo/ui/button"
-import { Input } from "@repo/ui/input"
-import { Label } from "@repo/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/select"
-import { Calendar } from "@repo/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon, MinusCircle, PlusCircle, Users } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { previewAudience } from "@/lib/api/segments"
-import { Alert, AlertDescription } from "@repo/ui/alert"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 type Condition = {
   id: string
@@ -207,7 +207,7 @@ export default function SegmentBuilder({ onSave, isLoading = false }: SegmentBui
               >
                 <MinusCircle className="h-5 w-5" />
               </Button>
-              <Select value={condition.type} onValueChange={(value: string) => updateCondition(condition.id, "type", value)}>
+              <Select value={condition.type} onValueChange={(value) => updateCondition(condition.id, "type", value)}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -220,7 +220,7 @@ export default function SegmentBuilder({ onSave, isLoading = false }: SegmentBui
               </Select>
               <Select
                 value={condition.operator}
-                onValueChange={(value: string) => updateCondition(condition.id, "operator", value)}
+                onValueChange={(value) => updateCondition(condition.id, "operator", value)}
               >
                 <SelectTrigger className="w-full md:w-32">
                   <SelectValue placeholder="Select operator" />

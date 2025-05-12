@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Button } from "@repo/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/table"
-import { Badge } from "@repo/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import { ArrowRight, CheckCircle, Clock, Mail, XCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getCampaigns } from "@/lib/api/campaigns"
@@ -52,7 +52,7 @@ export default function CampaignList() {
         )
       case "completed":
         return (
-          <Badge variant="success" className="gap-1">
+          <Badge variant="secondary" className="gap-1">
             <CheckCircle className="h-3 w-3" /> Completed
           </Badge>
         )

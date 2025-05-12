@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@repo/ui/button"
-import { Input } from "@repo/ui/input"
-import { Label } from "@repo/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/select"
-import { Calendar } from "@repo/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon, MinusCircle, PlusCircle, Users } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -179,7 +179,7 @@ export function SegmentBuilder({ onSave }: SegmentBuilderProps) {
               >
                 <MinusCircle className="h-5 w-5" />
               </Button>
-              <Select value={condition.type} onValueChange={(value: string) => updateCondition(condition.id, "type", value)}>
+              <Select value={condition.type} onValueChange={(value) => updateCondition(condition.id, "type", value)}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -192,7 +192,7 @@ export function SegmentBuilder({ onSave }: SegmentBuilderProps) {
               </Select>
               <Select
                 value={condition.operator}
-                onValueChange={(value: string) => updateCondition(condition.id, "operator", value)}
+                onValueChange={(value) => updateCondition(condition.id, "operator", value)}
               >
                 <SelectTrigger className="w-full md:w-32">
                   <SelectValue placeholder="Select operator" />

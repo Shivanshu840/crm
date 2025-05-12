@@ -1,5 +1,4 @@
 import * as React from "react"
-
 import { cn } from "../../../apps/frontend/lib/utils";
 
 const Table = React.forwardRef<

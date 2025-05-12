@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/table"
-import { Badge } from "@repo/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Clock, XCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getCommunicationLogsByCampaignId } from "@/lib/api/communication-logs"
@@ -33,8 +33,8 @@ export default function DeliveryLogs({ campaignId }: { campaignId: string }) {
 
     fetchLogs()
 
-    // Poll for updates every 5 seconds
-    const interval = setInterval(fetchLogs, 5000)
+    // Poll for updates every 2 mins
+    const interval = setInterval(fetchLogs, 20000)
 
     return () => clearInterval(interval)
   }, [campaignId, toast])
@@ -49,7 +49,7 @@ export default function DeliveryLogs({ campaignId }: { campaignId: string }) {
         )
       case "SENT":
         return (
-          <Badge variant="success" className="gap-1">
+          <Badge variant="secondary" className="gap-1">
             <CheckCircle className="h-3 w-3" /> Sent
           </Badge>
         )

@@ -206,12 +206,10 @@ export const executeCampaign = async (req:any, res:any) => {
         console.error(`Error sending email to customer ${customer.id}:`, error)
 
        
-        await prisma.communicationLog.update({
+        await prisma.communicationLog.updateMany({
           where: {
-            campaignId_customerId: {
               campaignId: campaign.id,
               customerId: customer.id,
-            },
           },
           data: {
             status: "FAILED",

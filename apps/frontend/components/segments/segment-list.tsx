@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Button } from "@repo/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/table"
-import { Badge } from "@repo/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Edit, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getSegments, deleteSegment } from "@/lib/api/segments"

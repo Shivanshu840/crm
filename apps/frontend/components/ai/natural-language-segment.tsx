@@ -3,9 +3,9 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Button } from "@repo/ui/button"
-import { Input } from "@repo/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Sparkles } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { convertNaturalLanguageToRules } from "@/lib/api/ai"
