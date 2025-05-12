@@ -1,0 +1,34 @@
+import Link from "next/link"
+import { Button } from "@repo/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/card"
+import { PlusCircle } from "lucide-react"
+import SegmentList from "@/components/segments/segment-list"
+
+export default function SegmentsPage() {
+  return (
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Customer Segments</h1>
+          <p className="text-muted-foreground mt-1">Create and manage your customer segments</p>
+        </div>
+        <Link href="/segments/create">
+          <Button className="gap-2">
+            <PlusCircle className="h-4 w-4" />
+            Create Segment
+          </Button>
+        </Link>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All Segments</CardTitle>
+          <CardDescription>View and manage your customer segments</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SegmentList />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

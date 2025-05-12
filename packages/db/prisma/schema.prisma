@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") 
+}
+
+model Customer {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  phone        String?
+  totalSpend   Float     @default(0)
+  lastPurchase DateTime?
+  visitCount   Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  orders            Order[]
+  communicationLogs CommunicationLog[]
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  customerId String
+  amount     Float
+  items      String[] 
+  status     String   @default("completed")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id])
+}
+
+model Segment {
+  id           String     @id @default(uuid())
+  name         String
+  description  String?
+  rules        Json       
+  audienceSize Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  
+  campaigns    Campaign[]
+}
+
+model Campaign {
+  id              String    @id @default(uuid())
+  name            String
+  segmentId       String
+  messageTemplate String
+  status          String    @default("scheduled")
+  audienceSize    Int       @default(0)
+  sentCount       Int       @default(0)
+  failedCount     Int       @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  segment           Segment            @relation(fields: [segmentId], references: [id])
+  communicationLogs CommunicationLog[]
+}
+
+model CommunicationLog {
+  id              String    @id @default(uuid())
+  campaignId      String
+  customerId      String
+  messageId       String    @unique
+  content         String
+  status          String    @default("PENDING")
+  statusUpdatedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  avatar    String?
+}
