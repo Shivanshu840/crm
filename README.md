@@ -21,7 +21,7 @@ This project utilizes Turborepo to orchestrate a monorepo containing the followi
 -   **Database**: PostgreSQL
 -   **ORM (Object-Relational Mapper)**: **Prisma**
 -   **Authentication**: **NextAuth.js** (with Google OAuth Provider)
--   **API Documentation**: Postman (API specifications will be provided separately)
+-   **API Documentation**: Postman (https://.postman.co/workspace/My-Workspace~9a33beb8-4275-44d1-814d-583fb2ba4c90/collection/32709758-c8e940e4-fcc3-41f9-9f85-be6d9a652a3a?action=share&creator=32709758)
 -   **AI Integration**: **Hugging Face API** (for features like sentiment analysis or automated responses)
 -   **Email Service**: SMTP via **Nodemailer**
 -   **Shared UI**: **Tailwind CSS** for styling and **Headless UI** for unstyled, accessible UI primitives.
@@ -32,8 +32,8 @@ This project utilizes Turborepo to orchestrate a monorepo containing the followi
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <your-repository-name>
+    git https://github.com/Shivanshu840/crm.git
+    cd crm
     ```
 
 2.  **Install dependencies:**
