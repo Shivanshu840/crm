@@ -153,7 +153,7 @@ export default function CampaignForm({ onSubmit, isLoading = false, segment }: C
         <p className="text-xs text-muted-foreground">Use {"{name}"} to include the customer's name in your message.</p>
       </div>
       {segment && (
-        <Alert variant="secondary" className="mt-2">
+        <Alert variant="default" className="mt-2">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs">
             Click the sparkles icon to generate AI-powered message suggestions based on your campaign objective.
