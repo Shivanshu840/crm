@@ -1,84 +1,133 @@
-# Turborepo starter
+# Mini CRM Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern Mini CRM Platform built with a robust and scalable tech stack, leveraging a monorepo structure for efficient development and management.
 
-## Using this example
+## Monorepo Structure
 
-Run the following command:
+This project utilizes Turborepo to orchestrate a monorepo containing the following distinct applications and shared packages:
 
-```sh
-npx create-turbo@latest
-```
+-   **`apps/`**: Houses the individual, runnable applications that form the CRM.
+    -   **`backend/`**: The core Node.js backend application, responsible for API endpoints, business logic, and data management. Built with **Express.js**.
+    -   **`frontend/`**: The user-friendly Next.js frontend application, providing the interface for users to interact with the CRM.
+-   **`packages/`**: Contains reusable code and configurations shared across different parts of the project.
+    -   **`db/`**: Manages the PostgreSQL database schema using **Prisma**, including schema definition and migrations.
+    -   **`ui/`**: A collection of reusable UI components and styling, built with **Tailwind CSS** and **Headless UI**.
 
-## What's inside?
+## Tech Stack
 
-This Turborepo includes the following packages/apps:
+-   **Monorepo Management**: Turborepo
+-   **Frontend**: Next.js
+-   **Backend**: Node.js with **Express.js**
+-   **Database**: PostgreSQL
+-   **ORM (Object-Relational Mapper)**: **Prisma**
+-   **Authentication**: **NextAuth.js** (with Google OAuth Provider)
+-   **API Documentation**: Postman (API specifications will be provided separately)
+-   **AI Integration**: **Hugging Face API** (for features like sentiment analysis or automated responses)
+-   **Email Service**: SMTP via **Nodemailer**
+-   **Shared UI**: **Tailwind CSS** for styling and **Headless UI** for unstyled, accessible UI primitives.
 
-### Apps and Packages
+## Getting Started
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Installation & Setup
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repository-url>
+    cd <your-repository-name>
+    ```
 
-### Utilities
+2.  **Install dependencies:**
+    From the root of the monorepo, run your preferred package manager's install command:
+    ```bash
+    npm install
+    # or
+    yarn install
+    # or
+    pnpm install
+    ```
 
-This Turborepo has some additional tools already setup for you:
+3.  **Database Setup:**
+    -   Ensure your PostgreSQL server is running.
+    -   Create a new database for the project (e.g., `mini_crm_db`). You can use a tool like `psql` or a GUI database client.
+    -   Navigate to the `packages/db` directory:
+        ```bash
+        cd packages/db
+        ```
+    -   Run the initial Prisma migrations to create the database schema:
+        ```bash
+        npx prisma migrate dev --name initial_data
+        ```
+    -   Generate the Prisma Client, which the backend uses to interact with the database:
+        ```bash
+        npx prisma generate
+        ```
+    -   Return to the root of the monorepo:
+        ```bash
+        cd ../..
+        ```
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+4.  **Environment Variables:**
 
-### Build
+    * **Backend Configuration (`apps/backend/.env`):**
+        Create a `.env` file in the `apps/backend/` directory and populate it with your specific configurations:
 
-To build all apps and packages, run the following command:
+        ```env
+        DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE_NAME?sslmode=prefer" # e.g., postgresql://postgres:mysecretpassword@localhost:5432/mini_crm_db?sslmode=prefer
+        JWT_SECRET="your_strong_jwt_secret_here" # Replace with a strong, unique secret
+        PORT=5000
+        HUGGINGFACE_API_KEY="yourapikey" # Your Hugging Face API Key
+        EMAIL_USER="your-email" # Your email address for sending emails
+        EMAIL_PASSWORD="your-password" # Your email password or app-specific password
+        EMAIL_HOST="smtp.example.com" # Your SMTP host
+        EMAIL_PORT=587
+        EMAIL_SECURE=true # Use true if your SMTP provider uses SSL/TLS
+        ```
 
-```
-cd my-turborepo
+    * **Frontend Configuration (`apps/frontend/.env.local`):**
+        Create a `.env.local` file in the `apps/frontend/` directory and configure the following variables:
+
+        ```env
+        NEXT_PUBLIC_API_URL=http://localhost:5000/api
+        NEXTAUTH_URL=http://localhost:3000
+        NEXTAUTH_SECRET="your_strong_nextauth_secret_here" # Generate one: openssl rand -hex 32
+        GOOGLE_CLIENT_ID="your-google-client-id-here" # Your Google OAuth Client ID
+        GOOGLE_CLIENT_SECRET="your-google-client-secret-here" # Your Google OAuth Client Secret
+        ```
+
+        **Important Security Notes:**
+        * **Never commit your `.env` or `.env.local` files to Git.** Ensure they are added to your `.gitignore` file to prevent accidental exposure of sensitive information.
+        * For `JWT_SECRET` and `NEXTAUTH_SECRET`, generate cryptographically strong, unique random strings.
+
+### Running the Development Servers
+
+1.  **To run all applications in development mode concurrently (from the root of the monorepo):**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    ```
+
+2.  **To run a specific application in development mode (e.g., the frontend):**
+    ```bash
+    npm run dev --filter=frontend
+    # or
+    yarn workspace frontend dev
+    # or
+    pnpm --filter frontend dev
+    ```
+
+    -   The Next.js frontend will typically be accessible at `http://localhost:3000`.
+    -   The Node.js backend API will typically be accessible at `http://localhost:5000`.
+
+## Building for Production
+
+To build the applications for production deployment, run the following command from the root of the monorepo:
+
+```bash
+npm run build
+# or
+yarn build
+# or
 pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
