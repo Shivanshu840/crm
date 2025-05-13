@@ -2,7 +2,7 @@
   "name": "crm",
   "private": true,
   "scripts": {
-    "build": "npx prisma generate && turbo run build",
+    "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
