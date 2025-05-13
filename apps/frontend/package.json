@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate --schema=../../packages/db/prisma/schema.prisma && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@repo/db": "*",
+    "@repo/ui": "*",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "latest",
     "@radix-ui/react-accordion": "1.2.2",
