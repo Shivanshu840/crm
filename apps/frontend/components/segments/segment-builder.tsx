@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,9 +30,16 @@ type SegmentBuilderProps = {
     logicType: string
   }) => void
   isLoading?: boolean
+  initialData?: any
+  isEditMode?: boolean
 }
 
-export default function SegmentBuilder({ onSave, isLoading = false }: SegmentBuilderProps) {
+export default function SegmentBuilder({
+  onSave,
+  isLoading = false,
+  initialData = null,
+  isEditMode = false,
+}: SegmentBuilderProps) {
   const [segmentName, setSegmentName] = useState("New Customer Segment")
   const [editingName, setEditingName] = useState(false)
   const [conditionType, setConditionType] = useState("Purchased Product")
@@ -45,6 +52,24 @@ export default function SegmentBuilder({ onSave, isLoading = false }: SegmentBui
 
   const [audiencePreview, setAudiencePreview] = useState<{ audienceSize: number } | null>(null)
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
+
+  // Initialize form with existing data when in edit mode
+  useEffect(() => {
+    if (initialData && isEditMode) {
+      setSegmentName(initialData.name || "New Customer Segment")
+      setConditionType(initialData.rules?.conditionType || "Purchased Product")
+      setSubcategory(initialData.rules?.subcategory || "All Categories")
+      setLogicType(initialData.rules?.logicType || "All")
+
+      if (initialData.rules?.date) {
+        setDate(new Date(initialData.rules.date))
+      }
+
+      if (initialData.rules?.conditions && initialData.rules.conditions.length > 0) {
+        setConditions(initialData.rules.conditions)
+      }
+    }
+  }, [initialData, isEditMode])
 
   const addCondition = () => {
     setConditions([
@@ -204,6 +229,7 @@ export default function SegmentBuilder({ onSave, isLoading = false }: SegmentBui
                 size="icon"
                 onClick={() => removeCondition(condition.id)}
                 className="text-destructive"
+                disabled={conditions.length === 1}
               >
                 <MinusCircle className="h-5 w-5" />
               </Button>
@@ -263,7 +289,7 @@ export default function SegmentBuilder({ onSave, isLoading = false }: SegmentBui
         </Button>
 
         <Button onClick={handleSave} disabled={isLoading} className="gap-2">
-          {isLoading ? "Saving..." : "Save Segment"}
+          {isLoading ? (isEditMode ? "Updating..." : "Saving...") : isEditMode ? "Update Segment" : "Save Segment"}
         </Button>
       </div>
     </div>
