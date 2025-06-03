@@ -25,9 +25,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers session={session}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
             {children}
-          </ThemeProvider>
         </Providers>
       </body>
     </html>
