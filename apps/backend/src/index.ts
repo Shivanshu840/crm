@@ -6,7 +6,7 @@ import orderRoutes from "./routes/orderRoute"
 import segmentRoutes from "./routes/segmentRoute"
 import campaignRoutes from "./routes/campaignRoute"
 import communicationLogRoutes from "./routes/communicationLogRoute"
-import aiRoutes from "./routes/aiRoute"
+
 dotenv.config()
 
 const app = express()
@@ -19,7 +19,6 @@ app.use("/api/orders", orderRoutes)
 app.use("/api/segments", segmentRoutes)
 app.use("/api/campaigns", campaignRoutes)
 app.use("/api/communication-logs", communicationLogRoutes)
-app.use("/api/ai",aiRoutes)
 
 
 app.get("/", (req, res) => {

@@ -3,8 +3,18 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle } from "lucide-react"
 import SegmentList from "@/components/segments/segment-list"
+import { authOptionUser } from "@/lib/authoption"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation";
 
-export default function SegmentsPage() {
+export default async function SegmentsPage() {
+
+  const session = await getServerSession(authOptionUser);
+
+  if(!session?.user){
+    return redirect("/signin")
+  }
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">

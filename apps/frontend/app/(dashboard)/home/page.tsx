@@ -1,8 +1,18 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRight, BarChart3, Users, Mail } from "lucide-react"
+import { authOptionUser } from "@/lib/authoption"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  
+  const session = await getServerSession(authOptionUser);
+
+  if(!session?.user){
+    return redirect("/signin")
+  }
+
   return (
     <div className="container mx-auto py-12">
       <div className="flex flex-col items-center text-center space-y-8 max-w-3xl mx-auto">

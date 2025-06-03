@@ -1,6 +1,6 @@
 import prisma from "@repo/db/clients"
 
-//Get all communication log
+// for fetching all the communicationLog
 export const getCommunicationLogs = async (req:any, res:any) => {
   try {
     const logs = await prisma.communicationLog.findMany({
@@ -78,7 +78,7 @@ export const getCommunicationLogsByCustomerId = async (req:any, res:any) => {
   }
 }
 
-// Update communication log status (delivery receipt)
+// Update communication log status
 export const updateCommunicationLogStatus = async (req:any, res:any) => {
   try {
     const { messageId } = req.params

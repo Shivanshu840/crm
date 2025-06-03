@@ -106,31 +106,35 @@ export const updateCampaign = async (req:any, res:any) => {
 }
 
 // Delete campaign
-export const deleteCampaign = async (req:any, res:any) => {
+export const deleteCampaign = async (req: any, res: any) => {
   try {
-    const { id } = req.params
+    const { id } = req.params;
 
     const existingCampaign = await prisma.campaign.findUnique({
       where: { id },
-    })
+    });
 
     if (!existingCampaign) {
-      return res.status(404).json({ error: "Campaign not found" })
+      return res.status(404).json({ error: "Campaign not found" });
     }
 
-    if (existingCampaign.status === "completed" || existingCampaign.status === "in_progress") {
-      return res.status(400).json({ error: "Cannot delete campaign that is already in progress or completed" })
+    if (existingCampaign.status === "in_progress") {
+      return res.status(400).json({ error: "Cannot delete campaign that is already in progress or completed" });
     }
+
+    await prisma.communicationLog.deleteMany({
+      where: { campaignId: id },
+    });
 
     await prisma.campaign.delete({
       where: { id },
-    })
+    });
 
-    res.json({ message: "Campaign deleted successfully" })
-  } catch (error:any) {
-    res.status(500).json({ error: error.message })
+    res.json({ message: "Campaign deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
-}
+};
 
 // Execute campaign
 export const executeCampaign = async (req:any, res:any) => {
@@ -278,7 +282,6 @@ function buildPrismaQueryFromRules(rules:any) {
     return {}
   }
 
-  // Map conditions to Prisma query format
   const queries = conditions.map((condition:any) => {
     const { type, operator, value } = condition
 
@@ -309,7 +312,7 @@ function buildPrismaQueryFromRules(rules:any) {
     }
   })
 
-  // Combine queries based on logic type (AND/OR)
+ 
   if (logicType === "All") {
     return { AND: queries }
   } else {
@@ -317,7 +320,7 @@ function buildPrismaQueryFromRules(rules:any) {
   }
 }
 
-// Helper function to get Prisma operator query
+// i have create a helper  function to get Prisma operator query
 function getOperatorQuery(operator: any, value: string | number | any[]) {
   switch (operator) {
     case "is":
@@ -336,7 +339,7 @@ function getOperatorQuery(operator: any, value: string | number | any[]) {
   }
 }
 
-// Helper function to get Prisma date operator query
+// here i have create the  function to get Prisma date operator query
 function getDateOperatorQuery(operator: any, date: Date) {
   switch (operator) {
     case "is":

@@ -114,7 +114,7 @@ export const updateOrder = async (req:any, res:any) => {
       })
     }
 
-    // Update order
+    
     const order = await prisma.order.update({
       where: { id },
       data: {

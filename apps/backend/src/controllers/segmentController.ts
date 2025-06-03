@@ -126,7 +126,7 @@ export const deleteSegment = async (req: any, res: any) => {
   }
 }
 
-// Preview audience for a segment
+// Preview audience for your current  segment
 export const previewAudience = async (req: any, res: any) => {
   try {
     const { rules } = req.body
@@ -145,7 +145,7 @@ export const previewAudience = async (req: any, res: any) => {
   }
 }
 
-// Helper function to calculate audience size based on rules
+// Here i have create the function to calculate audience size based on rules
 async function calculateAudienceSize(rules: any) {
   try {
     const customers = await getCustomersForSegment(rules)
@@ -156,7 +156,7 @@ async function calculateAudienceSize(rules: any) {
   }
 }
 
-// Helper function to get customers that match segment rules
+
 async function getCustomersForSegment(rules: any, limit: number | null = null) {
   const query = buildPrismaQueryFromRules(rules)
 
@@ -165,13 +165,15 @@ async function getCustomersForSegment(rules: any, limit: number | null = null) {
   }
 
   if (limit) {
-    options.take = limit // ensure 'take' property is used correctly
+    options.take = limit 
   }
+
+  console.log(options);
 
   return await prisma.customer.findMany(options)
 }
 
-// Helper function to build Prisma query from segment rules
+
 function buildPrismaQueryFromRules(rules: any) {
   const { conditions, logicType } = rules
 
@@ -179,7 +181,7 @@ function buildPrismaQueryFromRules(rules: any) {
     return {}
   }
 
-  // Map conditions to Prisma query format
+  
   const queries = conditions.map((condition: any) => {
     const { type, operator, value } = condition
 
@@ -235,7 +237,7 @@ function getOperatorQuery(operator: any, value: any) {
   }
 }
 
-// Helper function to get Prisma date operator query
+
 function getDateOperatorQuery(operator: any, date: any) {
   switch (operator) {
     case "is":
