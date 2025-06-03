@@ -48,7 +48,7 @@ export default function CampaignForm({ onSubmit, isLoading = false, segment }: C
 
     try {
       setIsGeneratingSuggestions(true)
-      const response = await fetch("http://localhost:3000/api/ai/message-suggestions", {
+      const response = await fetch("/api/ai/message-suggestions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
