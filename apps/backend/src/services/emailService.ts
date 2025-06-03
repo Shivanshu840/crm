@@ -13,13 +13,14 @@ const transporter = nodemailer.createTransport({
 
 export const sendEmail = async ({ to, subject, text, html, messageId }:any) => {
   try {
+
+    console.log("this is the receipnt mail: ",to);
     const mailOptions = {
       from: process.env.EMAIL_FROM || "Mini CRM <crm@example.com>",
       to,
       subject,
       text,
       html: html || text,
-      messageId: `<${messageId}@${process.env.EMAIL_DOMAIN || "example.com"}>`,
       headers: {
         "X-Campaign-ID": messageId,
       },

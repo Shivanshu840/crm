@@ -137,9 +137,144 @@ export const deleteCampaign = async (req: any, res: any) => {
 };
 
 // Execute campaign
+// export const executeCampaign = async (req:any, res:any) => {
+//   try {
+//     const { id } = req.params
+
+//     const campaign = await prisma.campaign.findUnique({
+//       where: { id },
+//       include: {
+//         segment: true,
+//       },
+//     })
+
+//     if (!campaign) {
+//       return res.status(404).json({ error: "Campaign not found" })
+//     }
+
+   
+//     if (campaign.status === "completed" || campaign.status === "in_progress") {
+//       return res.status(400).json({ error: "Campaign is already in progress or completed" })
+//     }
+
+//     // Update campaign status to in_progress
+//     await prisma.campaign.update({
+//       where: { id },
+//       data: {
+//         status: "in_progress",
+//         startedAt: new Date(),
+//       },
+//     })
+
+//     const customers = await getCustomersForSegment(campaign.segment.rules)
+
+
+//     const emailPromises = customers.map(async (customer: { name: string; id: string; email: string }) => {
+//       try {
+//         const personalizedMessage = campaign.messageTemplate.replace(/{name}/g, customer.name)
+//         const messageId = uuidv4()
+
+       
+//         await prisma.communicationLog.create({
+//           data: {
+//             campaignId: campaign.id,
+//             customerId: customer.id,
+//             messageId,
+//             content: personalizedMessage,
+//             status: "PENDING",
+//           },
+//         })
+
+        
+//         const emailResult = await sendEmail({
+//           to: customer.email,
+//           subject: `${campaign.name}`,
+//           text: personalizedMessage,
+//           messageId,
+//         })
+
+        
+//         await prisma.communicationLog.update({
+//           where: { messageId },
+//           data: {
+//             status: emailResult.success ? "SENT" : "FAILED",
+//             statusUpdatedAt: new Date(),
+//           },
+//         })
+
+//         return {
+//           customerId: customer.id,
+//           success: emailResult.success,
+//         }
+//       } catch (error) {
+//         console.error(`Error sending email to customer ${customer.id}:`, error)
+
+       
+//         await prisma.communicationLog.updateMany({
+//           where: {
+//               campaignId: campaign.id,
+//               customerId: customer.id,
+//           },
+//           data: {
+//             status: "FAILED",
+//             statusUpdatedAt: new Date(),
+//           },
+//         })
+
+//         return {
+//           customerId: customer.id,
+//           success: false,
+//         }
+//       }
+//     })
+
+    
+//     const results = await Promise.all(emailPromises)
+
+//     const sentCount = results.filter((r) => r.success).length
+//     const failedCount = results.filter((r) => !r.success).length
+
+   
+//     await prisma.campaign.update({
+//       where: { id },
+//       data: {
+//         status: "completed",
+//         sentCount,
+//         failedCount,
+//         completedAt: new Date(),
+//       },
+//     })
+
+//     res.json({
+//       message: "Campaign executed successfully",
+//       audienceSize: customers.length,
+//       sentCount,
+//       failedCount,
+//     })
+//   } catch (error:any) {
+
+//     await prisma.campaign.update({
+//       where: { id: req.params.id },
+//       data: {
+//         status: "failed",
+//       },
+//     })
+
+//     res.status(500).json({ error: error.message })
+//   }
+// }
+
+// Execute campaign with batching
 export const executeCampaign = async (req:any, res:any) => {
   try {
     const { id } = req.params
+    
+    // Batch configuration - can be passed in request body or use defaults
+    const batchConfig = {
+      batchSize: req.body?.batchSize || 50, // Process 50 emails at a time
+      delayBetweenBatches: req.body?.delayBetweenBatches || 1000, // 1 second delay
+      ...req.body?.batchConfig
+    }
 
     const campaign = await prisma.campaign.findUnique({
       where: { id },
@@ -152,7 +287,6 @@ export const executeCampaign = async (req:any, res:any) => {
       return res.status(404).json({ error: "Campaign not found" })
     }
 
-   
     if (campaign.status === "completed" || campaign.status === "in_progress") {
       return res.status(400).json({ error: "Campaign is already in progress or completed" })
     }
@@ -168,79 +302,164 @@ export const executeCampaign = async (req:any, res:any) => {
 
     const customers = await getCustomersForSegment(campaign.segment.rules)
 
+    if (customers.length === 0) {
+      await prisma.campaign.update({
+        where: { id },
+        data: {
+          status: "completed",
+          sentCount: 0,
+          failedCount: 0,
+          completedAt: new Date(),
+        },
+      })
 
-    const emailPromises = customers.map(async (customer: { name: string; id: string; email: string }) => {
+      return res.json({
+        message: "Campaign completed - no customers found",
+        audienceSize: 0,
+        sentCount: 0,
+        failedCount: 0,
+      })
+    }
+
+    // Helper function to create batches
+    const createBatches = (array: any[], batchSize: number) => {
+      const batches = []
+      for (let i = 0; i < array.length; i += batchSize) {
+        batches.push(array.slice(i, i + batchSize))
+      }
+      return batches
+    }
+
+    // Helper function to add delay
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+    // Create batches
+    const batches = createBatches(customers, batchConfig.batchSize)
+    console.log(`Processing ${customers.length} customers in ${batches.length} batches`)
+
+    let totalSentCount = 0
+    let totalFailedCount = 0
+    let processedCount = 0
+
+    // Process each batch
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex]
+      console.log(`Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} customers)`)
+
       try {
-        const personalizedMessage = campaign.messageTemplate.replace(/{name}/g, customer.name)
-        const messageId = uuidv4()
+        // Process current batch
+        const emailPromises = batch.map(async (customer: { name: string; id: string; email: string }) => {
+          try {
+            const personalizedMessage = campaign.messageTemplate.replace(/{name}/g, customer.name)
+            const messageId = uuidv4()
 
-       
-        await prisma.communicationLog.create({
+            await prisma.communicationLog.create({
+              data: {
+                campaignId: campaign.id,
+                customerId: customer.id,
+                messageId,
+                content: personalizedMessage,
+                status: "PENDING",
+              },
+            })
+
+            const emailResult = await sendEmail({
+              to: customer.email,
+              subject: `${campaign.name}`,
+              text: personalizedMessage,
+              messageId,
+            })
+
+            await prisma.communicationLog.update({
+              where: { messageId },
+              data: {
+                status: emailResult.success ? "SENT" : "FAILED",
+                statusUpdatedAt: new Date(),
+              },
+            })
+
+            return {
+              customerId: customer.id,
+              success: emailResult.success,
+            }
+          } catch (error) {
+            console.error(`Error sending email to customer ${customer.id}:`, error)
+
+            await prisma.communicationLog.updateMany({
+              where: {
+                campaignId: campaign.id,
+                customerId: customer.id,
+              },
+              data: {
+                status: "FAILED",
+                statusUpdatedAt: new Date(),
+              },
+            })
+
+            return {
+              customerId: customer.id,
+              success: false,
+            }
+          }
+        })
+
+        // Wait for current batch to complete
+        const batchResults = await Promise.all(emailPromises)
+
+        // Update counters
+        const batchSentCount = batchResults.filter((r) => r.success).length
+        const batchFailedCount = batchResults.filter((r) => !r.success).length
+
+        totalSentCount += batchSentCount
+        totalFailedCount += batchFailedCount
+        processedCount += batch.length
+
+        console.log(`Batch ${batchIndex + 1} completed: ${batchSentCount} sent, ${batchFailedCount} failed`)
+
+        // Update campaign progress
+        await prisma.campaign.update({
+          where: { id },
           data: {
-            campaignId: campaign.id,
-            customerId: customer.id,
-            messageId,
-            content: personalizedMessage,
-            status: "PENDING",
+            sentCount: totalSentCount,
+            failedCount: totalFailedCount,
+            updatedAt: new Date(),
           },
         })
 
-        
-        const emailResult = await sendEmail({
-          to: customer.email,
-          subject: `${campaign.name}`,
-          text: personalizedMessage,
-          messageId,
-        })
-
-        
-        await prisma.communicationLog.update({
-          where: { messageId },
-          data: {
-            status: emailResult.success ? "SENT" : "FAILED",
-            statusUpdatedAt: new Date(),
-          },
-        })
-
-        return {
-          customerId: customer.id,
-          success: emailResult.success,
+        // Add delay between batches (except for the last batch)
+        if (batchIndex < batches.length - 1) {
+          await delay(batchConfig.delayBetweenBatches)
         }
-      } catch (error) {
-        console.error(`Error sending email to customer ${customer.id}:`, error)
 
-       
+      } catch (batchError: any) {
+        console.error(`Error processing batch ${batchIndex + 1}:`, batchError)
+
+        // Mark all customers in this batch as failed
+        totalFailedCount += batch.length
+        processedCount += batch.length
+
+        // Update failed communication logs for this batch
+        const customerIds = batch.map((c: any) => c.id)
         await prisma.communicationLog.updateMany({
           where: {
-              campaignId: campaign.id,
-              customerId: customer.id,
+            campaignId: campaign.id,
+            customerId: { in: customerIds },
           },
           data: {
             status: "FAILED",
             statusUpdatedAt: new Date(),
           },
         })
-
-        return {
-          customerId: customer.id,
-          success: false,
-        }
       }
-    })
+    }
 
-    
-    const results = await Promise.all(emailPromises)
-
-    const sentCount = results.filter((r) => r.success).length
-    const failedCount = results.filter((r) => !r.success).length
-
-   
+    // Mark campaign as completed
     await prisma.campaign.update({
       where: { id },
       data: {
         status: "completed",
-        sentCount,
-        failedCount,
+        sentCount: totalSentCount,
+        failedCount: totalFailedCount,
         completedAt: new Date(),
       },
     })
@@ -248,21 +467,30 @@ export const executeCampaign = async (req:any, res:any) => {
     res.json({
       message: "Campaign executed successfully",
       audienceSize: customers.length,
-      sentCount,
-      failedCount,
+      sentCount: totalSentCount,
+      failedCount: totalFailedCount,
+      batchesProcessed: batches.length,
+      batchConfig,
     })
   } catch (error:any) {
+    console.error("Campaign execution error:", error)
 
-    await prisma.campaign.update({
-      where: { id: req.params.id },
-      data: {
-        status: "failed",
-      },
-    })
+    try {
+      await prisma.campaign.update({
+        where: { id: req.params.id },
+        data: {
+          status: "failed",
+          completedAt: new Date(),
+        },
+      })
+    } catch (updateError) {
+      console.error("Error updating campaign status to failed:", updateError)
+    }
 
     res.status(500).json({ error: error.message })
   }
 }
+
 
 
 async function getCustomersForSegment(rules: any) {
