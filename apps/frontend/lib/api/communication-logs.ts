@@ -1,6 +1,6 @@
 
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://crm-h0gd.onrender.com/api"
 
 export async function getCommunicationLogs() {
   const response = await fetch(`${API_URL}/communication-logs`)

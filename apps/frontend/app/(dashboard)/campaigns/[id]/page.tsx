@@ -134,7 +134,7 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ id: 
   const handleDeleteCampaign = async () => {
     try {
       setIsDeleting(true)
-      const response = await fetch(`http://localhost:5000/api/campaigns/${id}`, {
+      const response = await fetch(`https://crm-h0gd.onrender.com/api/campaigns/${id}`, {
         method: "DELETE",
       })
 

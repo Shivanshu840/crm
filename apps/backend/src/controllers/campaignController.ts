@@ -269,10 +269,10 @@ export const executeCampaign = async (req:any, res:any) => {
   try {
     const { id } = req.params
     
-    // Batch configuration - can be passed in request body or use defaults
+    
     const batchConfig = {
-      batchSize: req.body?.batchSize || 50, // Process 50 emails at a time
-      delayBetweenBatches: req.body?.delayBetweenBatches || 1000, // 1 second delay
+      batchSize: req.body?.batchSize || 50,
+      delayBetweenBatches: req.body?.delayBetweenBatches || 2000, // 1 second delay
       ...req.body?.batchConfig
     }
 
@@ -291,7 +291,7 @@ export const executeCampaign = async (req:any, res:any) => {
       return res.status(400).json({ error: "Campaign is already in progress or completed" })
     }
 
-    // Update campaign status to in_progress
+    
     await prisma.campaign.update({
       where: { id },
       data: {
@@ -333,7 +333,7 @@ export const executeCampaign = async (req:any, res:any) => {
     // Helper function to add delay
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-    // Create batches
+    
     const batches = createBatches(customers, batchConfig.batchSize)
     console.log(`Processing ${customers.length} customers in ${batches.length} batches`)
 
@@ -341,13 +341,13 @@ export const executeCampaign = async (req:any, res:any) => {
     let totalFailedCount = 0
     let processedCount = 0
 
-    // Process each batch
+   
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       const batch = batches[batchIndex]
       console.log(`Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} customers)`)
 
       try {
-        // Process current batch
+        
         const emailPromises = batch.map(async (customer: { name: string; id: string; email: string }) => {
           try {
             const personalizedMessage = campaign.messageTemplate.replace(/{name}/g, customer.name)
@@ -403,10 +403,10 @@ export const executeCampaign = async (req:any, res:any) => {
           }
         })
 
-        // Wait for current batch to complete
+        
         const batchResults = await Promise.all(emailPromises)
 
-        // Update counters
+        
         const batchSentCount = batchResults.filter((r) => r.success).length
         const batchFailedCount = batchResults.filter((r) => !r.success).length
 
@@ -416,7 +416,7 @@ export const executeCampaign = async (req:any, res:any) => {
 
         console.log(`Batch ${batchIndex + 1} completed: ${batchSentCount} sent, ${batchFailedCount} failed`)
 
-        // Update campaign progress
+        
         await prisma.campaign.update({
           where: { id },
           data: {
@@ -426,7 +426,7 @@ export const executeCampaign = async (req:any, res:any) => {
           },
         })
 
-        // Add delay between batches (except for the last batch)
+        
         if (batchIndex < batches.length - 1) {
           await delay(batchConfig.delayBetweenBatches)
         }
@@ -434,11 +434,11 @@ export const executeCampaign = async (req:any, res:any) => {
       } catch (batchError: any) {
         console.error(`Error processing batch ${batchIndex + 1}:`, batchError)
 
-        // Mark all customers in this batch as failed
+        
         totalFailedCount += batch.length
         processedCount += batch.length
 
-        // Update failed communication logs for this batch
+        
         const customerIds = batch.map((c: any) => c.id)
         await prisma.communicationLog.updateMany({
           where: {
@@ -453,7 +453,7 @@ export const executeCampaign = async (req:any, res:any) => {
       }
     }
 
-    // Mark campaign as completed
+    
     await prisma.campaign.update({
       where: { id },
       data: {
